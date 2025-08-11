@@ -6,6 +6,20 @@ import pypdfium2 as pdfium
 import easyocr
 import numpy as np
 from fpdf import FPDF
+import torch
+
+
+# easyocr uses PyTorch's DataLoader with pin_memory=True by default, which
+# triggers a warning and slows down execution when no accelerator (GPU/MPS)
+# is available.  Monkey-patch DataLoader to disable pin_memory on CPU-only
+# environments to avoid the warning observed by users.
+if not torch.cuda.is_available():
+    class _DataLoader(torch.utils.data.DataLoader):
+        def __init__(self, *args, **kwargs):
+            kwargs.setdefault("pin_memory", False)
+            super().__init__(*args, **kwargs)
+
+    torch.utils.data.DataLoader = _DataLoader
 
 
 def _pdf_to_images(pdf_bytes: bytes, dpi: int) -> List:
