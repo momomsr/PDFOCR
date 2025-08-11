@@ -116,7 +116,7 @@ def ocr_pdf(
             for wrapped in wrapped_lines:
                 for chunk in _split_to_width(pdf, wrapped):
                     pdf.multi_cell(pdf.epw, 8, chunk)
-    return pdf.output(dest="S").encode("latin-1")
+    return bytes(pdf.output())
 
 
 def main() -> None:
