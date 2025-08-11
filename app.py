@@ -9,7 +9,6 @@ import pypdfium2 as pdfium
 import easyocr
 import numpy as np
 from fpdf import FPDF
-from fpdf.errors import FPDFException
 import torch
 import textwrap
 
@@ -62,6 +61,25 @@ def _pdf_to_images(pdf_bytes: bytes, dpi: int) -> List:
     return images
 
 
+def _split_to_width(pdf: FPDF, text: str) -> List[str]:
+    """Split text into chunks that fit within the PDF's effective page width."""
+    segments: List[str] = []
+    while text:
+        if pdf.get_string_width(text) <= pdf.epw:
+            segments.append(text)
+            break
+        # Find the longest prefix that fits on the line
+        end = len(text)
+        while end > 0 and pdf.get_string_width(text[:end]) > pdf.epw:
+            end -= 1
+        if end == 0:
+            # Fallback to avoid infinite loop
+            end = 1
+        segments.append(text[:end])
+        text = text[end:]
+    return segments
+
+
 def ocr_pdf(
     pdf_bytes: bytes,
     lang: str,
@@ -96,12 +114,8 @@ def ocr_pdf(
                 break_on_hyphens=False,
             )
             for wrapped in wrapped_lines:
-                try:
-                    pdf.multi_cell(0, 8, wrapped)
-                except FPDFException:
-                    # Fallback: split into smaller chunks if rendering fails
-                    for chunk in textwrap.wrap(wrapped, width=max_chars // 2 or 1):
-                        pdf.multi_cell(0, 8, chunk)
+                for chunk in _split_to_width(pdf, wrapped):
+                    pdf.multi_cell(pdf.epw, 8, chunk)
     return pdf.output(dest="S").encode("latin-1")
 
 
@@ -116,7 +130,15 @@ def main() -> None:
     if uploaded:
         st.session_state["uploaded_pdf"] = uploaded.getvalue()
 
-    lang = st.text_input("OCR-Sprache", value="de")
+    languages = {
+        "Deutsch": "de",
+        "Englisch": "en",
+        "Spanisch": "es",
+        "Französisch": "fr",
+        "Italienisch": "it",
+    }
+    lang_display = st.selectbox("OCR-Sprache", list(languages.keys()), index=0)
+    lang = languages[lang_display]
     dpi = st.slider("DPI für Bildkonvertierung", 72, 300, 200)
 
     if st.session_state.get("uploaded_pdf") and st.button("OCR starten"):
