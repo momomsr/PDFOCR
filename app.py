@@ -1,6 +1,7 @@
 import io
 import os
 import signal
+import threading
 from typing import Callable, List, Optional
 
 import streamlit as st
@@ -46,7 +47,7 @@ def _exit_on_sigint(sig, frame) -> None:
     os._exit(0)
 
 
-signal.signal(signal.SIGINT, _exit_on_sigint)
+
 
 
 def _pdf_to_images(pdf_bytes: bytes, dpi: int) -> List:
@@ -121,4 +122,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    if threading.current_thread() is threading.main_thread():
+        signal.signal(signal.SIGINT, _exit_on_sigint)
     main()
