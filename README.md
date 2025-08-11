@@ -23,8 +23,14 @@ Dieses Projekt bietet eine kleine [Streamlit](https://streamlit.io)-Anwendung, u
      ```
      install.bat
      ```
-     Falls Poppler nicht automatisch gefunden wird, kann der Pfad über die
-     Umgebungsvariable `POPPLER_PATH` angegeben werden.
+     Der Batch-Installer versucht zuerst, die benötigten Systempakete über
+     [Chocolatey](https://chocolatey.org) bzw. das Windows Paket-Tool
+     (`winget`) zu beziehen. Sollte kein Paketmanager vorhanden sein, können
+     [Tesseract](https://github.com/UB-Mannheim/tesseract/wiki) und die
+     [Poppler‑Binaries](https://github.com/oschwartz10612/poppler-windows/releases)
+     auch manuell installiert werden. In diesem Fall muss anschließend die
+     Umgebungsvariable `POPPLER_PATH` auf das `bin`‑Verzeichnis der Poppler-
+     Installation gesetzt werden.
 
 Alternativ können die Python-Abhängigkeiten auch manuell installiert werden:
 ```bash
