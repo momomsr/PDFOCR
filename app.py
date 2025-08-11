@@ -9,7 +9,9 @@ import pypdfium2 as pdfium
 import easyocr
 import numpy as np
 from fpdf import FPDF
+from fpdf.errors import FPDFException
 import torch
+import textwrap
 
 
 # Prevent third-party module discovery mechanisms from inspecting
@@ -84,14 +86,31 @@ def ocr_pdf(
     pdf.set_font("Arial", size=12)
     for page_text in all_text:
         pdf.add_page()
+        # Determine maximum characters per line based on current page width
+        max_chars = max(int(pdf.epw / pdf.get_string_width("W")), 1)
         for line in page_text.splitlines():
-            pdf.multi_cell(0, 8, line)
+            wrapped_lines = textwrap.wrap(
+                line,
+                width=max_chars,
+                break_long_words=True,
+                break_on_hyphens=False,
+            )
+            for wrapped in wrapped_lines:
+                try:
+                    pdf.multi_cell(0, 8, wrapped)
+                except FPDFException:
+                    # Fallback: split into smaller chunks if rendering fails
+                    for chunk in textwrap.wrap(wrapped, width=max_chars // 2 or 1):
+                        pdf.multi_cell(0, 8, chunk)
     return pdf.output(dest="S").encode("latin-1")
 
 
 def main() -> None:
     st.set_page_config(page_title="PDF OCR")
     st.title("PDF OCR App")
+    st.write(
+        "Die Applikation verarbeitet die Daten lokal auf dem Gerät, weshalb die Verarbeitung etwas dauern kann. Es wird nichts auf irgend einen Server hochgeladen."
+    )
 
     uploaded = st.file_uploader("PDF-Datei hochladen", type="pdf")
     if uploaded:
