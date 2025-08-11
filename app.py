@@ -1,68 +1,25 @@
 import io
-import os
-from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 import streamlit as st
-from pdf2image import convert_from_bytes
-from pdf2image.exceptions import PDFInfoNotInstalledError
+import pypdfium2 as pdfium
 import pytesseract
 from fpdf import FPDF
 
 
-def _detect_poppler_path() -> Optional[str]:
-    """Try to locate the poppler binaries.
-
-    Returns the path to the poppler "bin" directory if found, otherwise
-    ``None``. On Windows a couple of common installation locations (including
-    the default Chocolatey path) are checked in addition to the optional
-    ``POPPLER_PATH`` environment variable.
-    """
-
-    env_path = os.environ.get("POPPLER_PATH")
-    if env_path and Path(env_path).exists():
-        return env_path
-
-    if os.name == "nt":
-        candidates = [
-            r"C:\\Program Files\\poppler\\bin",
-            r"C:\\Program Files (x86)\\poppler\\bin",
-            r"C:\\ProgramData\\chocolatey\\lib\\poppler\\tools",
-        ]
-
-        # Also search for directories created by the official poppler
-        # Windows zip packages, e.g. "C:\\poppler-22.12.0\\Library\\bin".
-        roots = [
-            Path("C:/"),
-            Path("C:/Program Files"),
-            Path("C:/Program Files (x86)"),
-        ]
-        for root in roots:
-            for folder in root.glob("poppler*"):
-                candidates.extend(
-                    [
-                        str(folder / "Library" / "bin"),
-                        str(folder / "bin"),
-                    ]
-                )
-
-        for path in candidates:
-            if Path(path).exists():
-                return str(Path(path))
-
-    return None
+def _pdf_to_images(pdf_bytes: bytes, dpi: int) -> List:
+    """Render all PDF pages to PIL images using pdfium."""
+    pdf = pdfium.PdfDocument(io.BytesIO(pdf_bytes))
+    images: List = []
+    for page in pdf:
+        pil_image = page.render(scale=dpi / 72).to_pil()
+        images.append(pil_image)
+    return images
 
 
 def ocr_pdf(pdf_bytes: bytes, lang: str, psm: int, dpi: int) -> bytes:
     """Run OCR on a PDF and return a new PDF containing only recognized text."""
-    poppler_path = _detect_poppler_path()
-    try:
-        images = convert_from_bytes(pdf_bytes, dpi=dpi, poppler_path=poppler_path)
-    except PDFInfoNotInstalledError as exc:
-        raise RuntimeError(
-            "Poppler konnte nicht gefunden werden. Bitte installieren und den Pfad\n"
-            "über die Umgebungsvariable POPPLER_PATH angeben."
-        ) from exc
+    images = _pdf_to_images(pdf_bytes, dpi)
     all_text: List[str] = []
     config = f"--psm {psm}"
     for img in images:

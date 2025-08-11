@@ -5,7 +5,7 @@ Dieses Projekt bietet eine kleine [Streamlit](https://streamlit.io)-Anwendung, u
 ## Voraussetzungen
 
 - Python 3.10 oder neuer
-- Systempakete [`tesseract-ocr`](https://tesseract-ocr.github.io/tessdoc/Home.html) und [`poppler-utils`](https://poppler.freedesktop.org/) (werden für die Bildkonvertierung benötigt)
+- Systempaket [`tesseract-ocr`](https://tesseract-ocr.github.io/tessdoc/Home.html) (für die OCR-Erkennung)
 
 ## Installation
 
@@ -23,14 +23,11 @@ Dieses Projekt bietet eine kleine [Streamlit](https://streamlit.io)-Anwendung, u
      ```
      install.bat
      ```
-     Der Batch-Installer versucht zuerst, die benötigten Systempakete über
+     Der Batch-Installer versucht zuerst, das benötigte Systempaket über
      [Chocolatey](https://chocolatey.org) bzw. das Windows Paket-Tool
-     (`winget`) zu beziehen. Sollte kein Paketmanager vorhanden sein, können
-     [Tesseract](https://github.com/UB-Mannheim/tesseract/wiki) und die
-     [Poppler‑Binaries](https://github.com/oschwartz10612/poppler-windows/releases)
-     auch manuell installiert werden. In diesem Fall muss anschließend die
-     Umgebungsvariable `POPPLER_PATH` auf das `bin`‑Verzeichnis der Poppler-
-     Installation gesetzt werden.
+     (`winget`) zu beziehen. Sollte kein Paketmanager vorhanden sein, kann
+     [Tesseract](https://github.com/UB-Mannheim/tesseract/wiki) auch manuell
+     installiert werden.
 
 Alternativ können die Python-Abhängigkeiten auch manuell installiert werden:
 ```bash

@@ -3,7 +3,7 @@ set -e
 
 # Systemabhängigkeiten installieren
 sudo apt-get update
-sudo apt-get install -y tesseract-ocr poppler-utils
+sudo apt-get install -y tesseract-ocr
 
 # Python-Abhängigkeiten installieren
 pip install --upgrade pip
