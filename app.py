@@ -1,5 +1,7 @@
 import io
-from typing import List
+import os
+import signal
+from typing import Callable, List, Optional
 
 import streamlit as st
 import pypdfium2 as pdfium
@@ -39,6 +41,14 @@ if not torch.cuda.is_available():
     torch.utils.data.DataLoader = _DataLoader
 
 
+def _exit_on_sigint(sig, frame) -> None:
+    """Terminate immediately on Ctrl+C."""
+    os._exit(0)
+
+
+signal.signal(signal.SIGINT, _exit_on_sigint)
+
+
 def _pdf_to_images(pdf_bytes: bytes, dpi: int) -> List:
     """Render all PDF pages to PIL images using pdfium."""
     pdf = pdfium.PdfDocument(io.BytesIO(pdf_bytes))
@@ -49,16 +59,24 @@ def _pdf_to_images(pdf_bytes: bytes, dpi: int) -> List:
     return images
 
 
-def ocr_pdf(pdf_bytes: bytes, lang: str, dpi: int) -> bytes:
+def ocr_pdf(
+    pdf_bytes: bytes,
+    lang: str,
+    dpi: int,
+    progress_cb: Optional[Callable[[float], None]] = None,
+) -> bytes:
     """Run OCR on a PDF and return a new PDF containing only recognized text."""
     images = _pdf_to_images(pdf_bytes, dpi)
     easyocr_lang = lang[:2]
     reader = easyocr.Reader([easyocr_lang], gpu=False)
     all_text: List[str] = []
-    for img in images:
+    total = len(images)
+    for idx, img in enumerate(images, start=1):
         result = reader.readtext(np.array(img), detail=0, paragraph=True)
         text = "\n".join(result)
         all_text.append(text)
+        if progress_cb:
+            progress_cb(idx / total)
 
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
@@ -82,11 +100,13 @@ def main() -> None:
     dpi = st.slider("DPI für Bildkonvertierung", 72, 300, 200)
 
     if st.session_state.get("uploaded_pdf") and st.button("OCR starten"):
+        progress_bar = st.progress(0)
         with st.spinner("Verarbeite..."):
             result_pdf = ocr_pdf(
                 st.session_state["uploaded_pdf"],
                 lang=lang,
                 dpi=dpi,
+                progress_cb=lambda p: progress_bar.progress(int(p * 100)),
             )
             st.session_state["processed_pdf"] = result_pdf
             st.success("OCR abgeschlossen!")
