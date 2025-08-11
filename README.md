@@ -1,11 +1,11 @@
 # PDF OCR
 
-Dieses Projekt bietet eine kleine [Streamlit](https://streamlit.io)-Anwendung, um PDF-Dateien mit Hilfe der Open-Source-OCR-Engine [Tesseract](https://github.com/tesseract-ocr/tesseract) zu verarbeiten. Hochgeladene PDFs werden seitenweise in Bilder umgewandelt, per OCR erkannt und als neue PDF mit extrahiertem Text zum Download bereitgestellt.
+Dieses Projekt bietet eine kleine [Streamlit](https://streamlit.io)-Anwendung, um PDF-Dateien mit Hilfe der reinen Python-Bibliothek [EasyOCR](https://github.com/JaidedAI/EasyOCR) zu verarbeiten. Hochgeladene PDFs werden seitenweise in Bilder umgewandelt, per OCR erkannt und als neue PDF mit extrahiertem Text zum Download bereitgestellt.
 
 ## Voraussetzungen
 
 - Python 3.10 oder neuer
-- Systempaket [`tesseract-ocr`](https://tesseract-ocr.github.io/tessdoc/Home.html) (für die OCR-Erkennung)
+
 
 ## Installation
 
@@ -23,13 +23,6 @@ Dieses Projekt bietet eine kleine [Streamlit](https://streamlit.io)-Anwendung, u
      ```
      install.bat
      ```
-     Der Batch-Installer versucht zuerst, das benötigte Systempaket über
-     [Chocolatey](https://chocolatey.org) bzw. das Windows Paket-Tool
-     (`winget`) zu beziehen. Ist kein Paketmanager vorhanden, lädt das Skript
-     automatisch den aktuellen Installer von der UB Mannheim herunter und
-     führt ihn im Hintergrund aus. Falls der Download fehlschlägt, kann
-     [Tesseract](https://github.com/UB-Mannheim/tesseract/wiki) weiterhin
-     manuell installiert werden.
 
 Alternativ können die Python-Abhängigkeiten auch manuell installiert werden:
 ```bash
@@ -46,5 +39,5 @@ Streamlit zeigt anschließend die lokale URL, unter der die Weboberfläche aufge
 
 ## Hinweise
 
-- Die Sprache für die Texterkennung (Standard: Deutsch) sowie der PSM-Modus und die DPI lassen sich in der Benutzeroberfläche anpassen.
-- Für eine korrekte OCR müssen die entsprechenden Sprachpakete von Tesseract installiert sein (z. B. `tesseract-ocr-deu`).
+- Die Sprache für die Texterkennung (Standard: Deutsch) sowie die DPI lassen sich in der Benutzeroberfläche anpassen.
+- EasyOCR erwartet ISO-639-1 Sprachcodes (z. B. `de` für Deutsch, `en` für Englisch).

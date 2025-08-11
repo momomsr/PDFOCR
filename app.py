@@ -3,7 +3,8 @@ from typing import List
 
 import streamlit as st
 import pypdfium2 as pdfium
-import pytesseract
+import easyocr
+import numpy as np
 from fpdf import FPDF
 
 
@@ -17,13 +18,15 @@ def _pdf_to_images(pdf_bytes: bytes, dpi: int) -> List:
     return images
 
 
-def ocr_pdf(pdf_bytes: bytes, lang: str, psm: int, dpi: int) -> bytes:
+def ocr_pdf(pdf_bytes: bytes, lang: str, dpi: int) -> bytes:
     """Run OCR on a PDF and return a new PDF containing only recognized text."""
     images = _pdf_to_images(pdf_bytes, dpi)
+    easyocr_lang = lang[:2]
+    reader = easyocr.Reader([easyocr_lang], gpu=False)
     all_text: List[str] = []
-    config = f"--psm {psm}"
     for img in images:
-        text = pytesseract.image_to_string(img, lang=lang, config=config)
+        result = reader.readtext(np.array(img), detail=0, paragraph=True)
+        text = "\n".join(result)
         all_text.append(text)
 
     pdf = FPDF()
@@ -44,13 +47,7 @@ def main() -> None:
     if uploaded:
         st.session_state["uploaded_pdf"] = uploaded.getvalue()
 
-    lang = st.text_input("OCR-Sprache", value="deu")
-    psm = st.selectbox(
-        "Seiten-Layout-Erkennung (PSM)",
-        options=list(range(0, 14)),
-        index=3,
-        format_func=lambda x: f"PSM {x}"
-    )
+    lang = st.text_input("OCR-Sprache", value="de")
     dpi = st.slider("DPI für Bildkonvertierung", 72, 300, 200)
 
     if st.session_state.get("uploaded_pdf") and st.button("OCR starten"):
@@ -58,7 +55,6 @@ def main() -> None:
             result_pdf = ocr_pdf(
                 st.session_state["uploaded_pdf"],
                 lang=lang,
-                psm=psm,
                 dpi=dpi,
             )
             st.session_state["processed_pdf"] = result_pdf
