@@ -9,6 +9,23 @@ from fpdf import FPDF
 import torch
 
 
+# Prevent third-party module discovery mechanisms from inspecting
+# ``torch.classes`` as a namespace package.  Some libraries walk through
+# ``torch`` using ``pkgutil`` and attempt to examine ``torch.classes.__path__``,
+# which triggers noisy error messages like::
+#
+#   Examining the path of torch.classes raised: Tried to instantiate class
+#   '__path__._path', but it does not exist!
+#
+# Setting ``__path__`` to an empty list makes ``torch.classes`` appear as an
+# empty namespace package and avoids the spurious warning.
+if hasattr(torch, "classes"):
+    try:
+        torch.classes.__path__ = []  # type: ignore[attr-defined]
+    except Exception:
+        pass
+
+
 # easyocr uses PyTorch's DataLoader with pin_memory=True by default, which
 # triggers a warning and slows down execution when no accelerator (GPU/MPS)
 # is available.  Monkey-patch DataLoader to disable pin_memory on CPU-only
