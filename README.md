@@ -37,6 +37,22 @@ streamlit run app.py
 ```
 Streamlit zeigt anschließend die lokale URL, unter der die Weboberfläche aufgerufen werden kann.
 
+## Debug-Modus
+
+Zum Debuggen kann ein Modus aktiviert werden, der die Roh-Ergebnisse der OCR in der Konsole protokolliert und Bilder mit den erkannten Bounding-Boxes abspeichert.
+
+- Linux/macOS:
+  ```bash
+  OCR_DEBUG=1 streamlit run app.py
+  ```
+- Windows (PowerShell):
+  ```powershell
+  $env:OCR_DEBUG=1
+  streamlit run app.py
+  ```
+
+Die Debug-Bilder werden als `debug_page_<nummer>.png` im aktuellen Verzeichnis abgelegt.
+
 ## Hinweise
 
 - Die Sprache für die Texterkennung (Standard: Deutsch) sowie die DPI lassen sich in der Benutzeroberfläche anpassen.

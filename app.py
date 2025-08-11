@@ -4,6 +4,7 @@ import signal
 import threading
 from typing import Callable, List, Optional
 
+import logging
 import streamlit as st
 import pypdfium2 as pdfium
 import easyocr
@@ -43,6 +44,11 @@ if not torch.cuda.is_available():
     torch.utils.data.DataLoader = _DataLoader
 
 
+DEBUG = os.getenv("OCR_DEBUG") == "1"
+if DEBUG:
+    logging.basicConfig(level=logging.DEBUG)
+
+
 def _exit_on_sigint(sig, frame) -> None:
     """Terminate immediately on Ctrl+C."""
     os._exit(0)
@@ -80,6 +86,18 @@ def _split_to_width(pdf: FPDF, text: str) -> List[str]:
     return segments
 
 
+def _save_debug_image(img, result, page_idx: int) -> None:
+    from PIL import ImageDraw
+
+    img_debug = img.copy()
+    draw = ImageDraw.Draw(img_debug)
+    for bbox, *_ in result:
+        draw.polygon([tuple(point) for point in bbox], outline="red")
+    path = f"debug_page_{page_idx}.png"
+    img_debug.save(path)
+    logging.debug("Saved debug image %s", path)
+
+
 def ocr_pdf(
     pdf_bytes: bytes,
     lang: str,
@@ -93,8 +111,11 @@ def ocr_pdf(
     all_text: List[str] = []
     total = len(images)
     for idx, img in enumerate(images, start=1):
-        result = reader.readtext(np.array(img), detail=0, paragraph=True)
-        text = "\n".join(result)
+        result = reader.readtext(np.array(img), detail=1, paragraph=True)
+        logging.debug("OCR result page %s: %s", idx, result)
+        if DEBUG:
+            _save_debug_image(img, result, idx)
+        text = "\n".join([res[1] for res in result])
         all_text.append(text)
         if progress_cb:
             progress_cb(idx / total)
