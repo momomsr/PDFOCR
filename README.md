@@ -23,6 +23,8 @@ Dieses Projekt bietet eine kleine [Streamlit](https://streamlit.io)-Anwendung, u
      ```
      install.bat
      ```
+     Falls Poppler nicht automatisch gefunden wird, kann der Pfad über die
+     Umgebungsvariable `POPPLER_PATH` angegeben werden.
 
 Alternativ können die Python-Abhängigkeiten auch manuell installiert werden:
 ```bash
