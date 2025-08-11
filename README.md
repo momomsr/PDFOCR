@@ -25,9 +25,11 @@ Dieses Projekt bietet eine kleine [Streamlit](https://streamlit.io)-Anwendung, u
      ```
      Der Batch-Installer versucht zuerst, das benötigte Systempaket über
      [Chocolatey](https://chocolatey.org) bzw. das Windows Paket-Tool
-     (`winget`) zu beziehen. Sollte kein Paketmanager vorhanden sein, kann
-     [Tesseract](https://github.com/UB-Mannheim/tesseract/wiki) auch manuell
-     installiert werden.
+     (`winget`) zu beziehen. Ist kein Paketmanager vorhanden, lädt das Skript
+     automatisch den aktuellen Installer von der UB Mannheim herunter und
+     führt ihn im Hintergrund aus. Falls der Download fehlschlägt, kann
+     [Tesseract](https://github.com/UB-Mannheim/tesseract/wiki) weiterhin
+     manuell installiert werden.
 
 Alternativ können die Python-Abhängigkeiten auch manuell installiert werden:
 ```bash

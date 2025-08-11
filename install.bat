@@ -16,9 +16,19 @@ if %ERRORLEVEL% EQU 0 (
         winget install -e --id UB-Mannheim.Tesseract-OCR
     ) else (
         echo Neither Chocolatey nor Winget could be found.
-        echo Please install Tesseract manually:
-        echo   https://github.com/UB-Mannheim/tesseract/wiki
-        pause
+        echo Downloading Tesseract installer...
+        set DOWNLOAD_URL=https://github.com/UB-Mannheim/tesseract/releases/latest/download/tesseract-ocr-w64-setup.exe
+        powershell -Command "Invoke-WebRequest -Uri %DOWNLOAD_URL% -OutFile tesseract-installer.exe"
+        if exist tesseract-installer.exe (
+            echo Installing Tesseract...
+            start /wait tesseract-installer.exe /SILENT
+            del tesseract-installer.exe
+        ) else (
+            echo Failed to download Tesseract installer.
+            echo Please install Tesseract manually:
+            echo   https://github.com/UB-Mannheim/tesseract/wiki
+            pause
+        )
     )
 )
 
