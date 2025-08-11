@@ -29,9 +29,26 @@ def _detect_poppler_path() -> Optional[str]:
             r"C:\\Program Files (x86)\\poppler\\bin",
             r"C:\\ProgramData\\chocolatey\\lib\\poppler\\tools",
         ]
+
+        # Also search for directories created by the official poppler
+        # Windows zip packages, e.g. "C:\\poppler-22.12.0\\Library\\bin".
+        roots = [
+            Path("C:/"),
+            Path("C:/Program Files"),
+            Path("C:/Program Files (x86)"),
+        ]
+        for root in roots:
+            for folder in root.glob("poppler*"):
+                candidates.extend(
+                    [
+                        str(folder / "Library" / "bin"),
+                        str(folder / "bin"),
+                    ]
+                )
+
         for path in candidates:
             if Path(path).exists():
-                return path
+                return str(Path(path))
 
     return None
 
