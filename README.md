@@ -15,9 +15,14 @@ Dieses Projekt bietet eine kleine [Streamlit](https://streamlit.io)-Anwendung, u
    source .venv/bin/activate
    ```
 2. Abhängigkeiten installieren
-   ```bash
-   bash install.sh
-   ```
+   - Linux/macOS:
+     ```bash
+     bash install.sh
+     ```
+   - Windows:
+     ```
+     install.bat
+     ```
 
 Alternativ können die Python-Abhängigkeiten auch manuell installiert werden:
 ```bash
