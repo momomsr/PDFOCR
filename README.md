@@ -41,3 +41,5 @@ Streamlit zeigt anschließend die lokale URL, unter der die Weboberfläche aufge
 
 - Die Sprache für die Texterkennung (Standard: Deutsch) sowie die DPI lassen sich in der Benutzeroberfläche anpassen.
 - EasyOCR erwartet ISO-639-1 Sprachcodes (z. B. `de` für Deutsch, `en` für Englisch).
+- Während der Verarbeitung zeigt ein Ladebalken den Fortschritt der Konvertierung an.
+- Das Programm kann jederzeit über `Strg+C` in der Kommandozeile beendet werden.
