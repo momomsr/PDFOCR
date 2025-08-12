@@ -2,3 +2,9 @@ streamlit==1.33.0
 pypdfium2==4.24.0
 easyocr==1.7.1
 fpdf2==2.7.6
+pdf2image
+Pillow
+numpy
+matplotlib
+python-docx
+scikit-learn
